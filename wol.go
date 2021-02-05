@@ -96,7 +96,7 @@ func sendWakeSignal(macAdress string, args []string) error {
 	if err != nil {
 		return err
 	}
-	
+
 	req, err := net.DialUDP("udp", localAddr, udpAddr)
 	if err != nil {
 		return err
@@ -125,8 +125,7 @@ func (cmdHandler *commandHandler) wol(u *telegram.Update) {
 		break
 
 	case len(args) == 0:
-		cmdHandler.bot.Send(telegram.NewMessage(u.Message.Chat.ID, "Please specify the MAC address and 
-		the port to send the Wake On Lan Magic Packet to. Check --help for more informations."))
+		cmdHandler.bot.Send(telegram.NewMessage(u.Message.Chat.ID, "Please specify the MAC address and the port to send the Wake On Lan Magic Packet to. Check --help for more informations."))
 		break
 
 	case true:
