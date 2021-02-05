@@ -2,8 +2,9 @@ package main
 
 import (
 	"encoding/json"
-	"net/http"
 	"time"
+
+	telegram "github.com/go-telegram-bot-api/telegram-bot-api"
 )
 
 const url = `https://public.opendatasoft.com/api/records/1.0/search/?dataset=covid-19-germany-landkreise&q=Aachen&facet=last_update&facet=name&facet=rs&facet=bez&facet=bl`
@@ -28,10 +29,10 @@ type apiResponse struct {
 	} `json:"records"`
 }
 
-func getUpdate(client *http.Client) (apiResponse, error) {
-	res, err := client.Get(url)
+func getUpdate(cmdHandler *commandHandler, u *telegram.Update, args []string) {
+	res, err := cmdHandler.bot.Client.Get(url)
 	if err != nil {
-		return apiResponse{}, err
+
 	}
 	defer res.Body.Close()
 
@@ -40,8 +41,6 @@ func getUpdate(client *http.Client) (apiResponse, error) {
 
 	err = decoder.Decode(&response)
 	if err != nil {
-		return apiResponse{}, err
-	}
 
-	return response, nil
+	}
 }
