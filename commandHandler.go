@@ -10,6 +10,7 @@ type CommandHandler struct {
 	bot      *telegram.BotAPI
 	commands map[string]*Command
 	logger   <-chan string
+	config   *Config
 }
 
 type Command struct {
@@ -18,9 +19,8 @@ type Command struct {
 	function       func(*CommandHandler, *telegram.Update, []string)
 }
 
-func (cmdHandler *CommandHandler) startLogging(chatSize int) {
-	logger := make(chan string, chatSize)
-	cmdHandler.logger = logger
+func newCommandHandler(bot *telegram.BotAPI, loggerSize int, config *Config) *CommandHandler {
+	logger := make(chan string, loggerSize)
 
 	go func(logger <-chan string) {
 		for {
@@ -30,10 +30,7 @@ func (cmdHandler *CommandHandler) startLogging(chatSize int) {
 			}
 		}
 	}(logger)
-}
-
-func newCommandHandler(bot *telegram.BotAPI) *CommandHandler {
-	return &CommandHandler{bot: bot, commands: make(map[string]*Command)}
+	return &CommandHandler{bot: bot, commands: make(map[string]*Command), logger: logger, config: config}
 }
 
 func (cmdHandler *CommandHandler) RegisterCommand(name string, onlyRegistered bool, function func(*CommandHandler, *telegram.Update, []string)) {

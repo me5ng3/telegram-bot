@@ -2,6 +2,7 @@ package main
 
 import (
 	"log"
+	"math/rand"
 	"net/http"
 	"strings"
 	"time"
@@ -10,18 +11,17 @@ import (
 )
 
 func main() {
-
-	client := http.Client{Timeout: time.Second * 5}
-	bot, err := telegram.NewBotAPIWithClient("1615998279:AAG8QzNbtO61mtnF5AKTz6qivnuBWzjasPY", &client)
+	config := LoadConfig()
+	client := http.Client{Timeout: time.Second * time.Duration(rand.Int31n(int32(config.Timeout)))}
+	bot, err := telegram.NewBotAPIWithClient(config.Token, &client)
 	if err != nil {
 		log.Panic(err)
 	}
 
-	cmdHandler := newCommandHandler(bot)
-	cmdHandler.startLogging(10)
-	cmdHandler.RegisterCommand("help", false, Help)
+	bot.Debug = config.Debug
 
-	// bot.Debug = true
+	cmdHandler := newCommandHandler(bot, 10, config)
+	cmdHandler.RegisterCommand("help", false, Help)
 
 	log.Printf("Authorized on account %s", bot.Self.UserName)
 
@@ -35,9 +35,6 @@ func main() {
 
 		msg := telegram.NewMessage(update.Message.Chat.ID, update.Message.Text)
 		msg.ReplyToMessageID = update.Message.MessageID
-
-		log.Printf("[%s] %s", update.Message.From.UserName, update.Message.Text)
-
 		if update.Message.IsCommand() {
 			go cmdHandler.Check(update.Message.Command(), strings.Split(update.Message.CommandArguments(), " "), &update)
 		} else {
