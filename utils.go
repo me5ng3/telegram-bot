@@ -6,18 +6,18 @@ import (
 	"log"
 )
 
-type Config struct {
+type config struct {
 	Token   string `json:"token"`
 	Debug   bool   `json:"debug"`
 	Timeout int    `json:"timeout"`
 }
 
-func LoadConfig() *Config {
+func loadConfig() *config {
 	file, err := ioutil.ReadFile("config.json")
 	if err != nil {
 		log.Fatal(err)
 	}
-	config := Config{}
+	config := config{}
 
 	err = json.Unmarshal([]byte(file), &config)
 	if err != nil {

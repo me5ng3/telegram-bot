@@ -1,16 +1,13 @@
 package main
 
 import (
-	"fmt"
-
 	telegram "github.com/go-telegram-bot-api/telegram-bot-api"
 )
 
 type CommandHandler struct {
 	bot      *telegram.BotAPI
 	commands map[string]*Command
-	logger   <-chan string
-	config   *Config
+	config   *config
 }
 
 type Command struct {
@@ -19,22 +16,8 @@ type Command struct {
 	function       func(*CommandHandler, *telegram.Update, []string)
 }
 
-func newCommandHandler(bot *telegram.BotAPI, loggerSize int, config *Config) *CommandHandler {
-	logger := make(chan string, loggerSize)
-
-	go func(logger <-chan string) {
-		for {
-			for message := range logger {
-				fmt.Println(message) // LOG FORMATTING! <DATE:HOUR> MESSAGE
-				// WRITE LOGS TO POSTGRESQL
-			}
-		}
-	}(logger)
-	return &CommandHandler{bot: bot, commands: make(map[string]*Command), logger: logger, config: config}
-}
-
-func (cmdHandler *CommandHandler) RegisterCommand(name string, onlyRegistered bool, function func(*CommandHandler, *telegram.Update, []string)) {
-	cmdHandler.commands[name] = &Command{name, onlyRegistered, function}
+func newCommandHandler(bot *telegram.BotAPI, config *config) *CommandHandler {
+	return &CommandHandler{bot: bot, commands: make(map[string]*Command), config: config}
 }
 
 func (cmdHandler *CommandHandler) Check(commandName string, args []string, u *telegram.Update) {

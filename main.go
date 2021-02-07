@@ -11,28 +11,42 @@ import (
 )
 
 func main() {
-	config := LoadConfig()
-	client := http.Client{Timeout: time.Second * time.Duration(rand.Int31n(int32(config.Timeout)))}
-	bot, err := telegram.NewBotAPIWithClient(config.Token, &client)
+
+	// Load configuration file (config.json)
+	conf := loadConfig()
+
+	// start telegram bot with http client
+	client := http.Client{Timeout: time.Second * time.Duration(rand.Int31n(int32(conf.Timeout)))}
+	bot, err := telegram.NewBotAPIWithClient(conf.Token, &client)
 	if err != nil {
 		log.Panic(err)
 	}
 
-	bot.Debug = config.Debug
+	// set debug variable
+	bot.Debug = conf.Debug
 
-	cmdHandler := newCommandHandler(bot, 10, config)
-	cmdHandler.RegisterCommand("help", false, Help)
+	// initialize command handler, pass bot and configuration file
+	// initialize commands
+	cmdHandler := newCommandHandler(bot, conf)
+	cmdHandler.commands["help"] = &Command{"help", false, Help}
+	cmdHandler.commands["corona"] = &Command{"corona", false, coronaUpdate}
 
+	// online
 	log.Printf("Authorized on account %s", bot.Self.UserName)
 
+	// set update timer
 	u := telegram.NewUpdate(0)
 	u.Timeout = int(time.Second * 5)
 
+	// get updates
 	updates, err := bot.GetUpdatesChan(u)
+	if err != nil {
+		log.Fatal(err)
+	}
 
+	// loop through latest updates. If update is command then pass it through a go routine to
+	// the command handler along with command arguments and message pointer.
 	for update := range updates {
-		log.Printf("[%s] %s", update.Message.From.UserName, update.Message.Text)
-
 		msg := telegram.NewMessage(update.Message.Chat.ID, update.Message.Text)
 		msg.ReplyToMessageID = update.Message.MessageID
 		if update.Message.IsCommand() {

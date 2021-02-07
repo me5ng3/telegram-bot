@@ -2,6 +2,7 @@ package main
 
 import (
 	"encoding/json"
+	"fmt"
 	"time"
 
 	telegram "github.com/go-telegram-bot-api/telegram-bot-api"
@@ -29,10 +30,10 @@ type apiResponse struct {
 	} `json:"records"`
 }
 
-func getUpdate(cmdHandler *commandHandler, u *telegram.Update, args []string) {
+func coronaUpdate(cmdHandler *CommandHandler, u *telegram.Update, args []string) {
 	res, err := cmdHandler.bot.Client.Get(url)
 	if err != nil {
-
+		fmt.Println(err)
 	}
 	defer res.Body.Close()
 
@@ -41,6 +42,15 @@ func getUpdate(cmdHandler *commandHandler, u *telegram.Update, args []string) {
 
 	err = decoder.Decode(&response)
 	if err != nil {
-
+		fmt.Println(err)
 	}
+
+	results := fmt.Sprintf("Die aktuelle infizierungsrate in %s, %s liegt heute bei %.2f (last update: %s)",
+		response.Records[0].Fields.Name,
+		response.Records[0].Fields.Bl,
+		response.Records[0].Fields.Cases7Per100K,
+		response.Records[0].Fields.LastUpdate.Format("2 Jan 2006 15:04"),
+	)
+
+	cmdHandler.bot.Send(telegram.NewMessage(u.Message.Chat.ID, results))
 }
