@@ -27,9 +27,9 @@ func main() {
 
 	// initialize command handler, pass bot and configuration file
 	// initialize commands
-	cmdHandler := newCommandHandler(bot, conf)
+	cmdHandler := NewCommandHandler(bot, conf)
 	cmdHandler.commands["help"] = &Command{"help", false, Help}
-	cmdHandler.commands["corona"] = &Command{"corona", false, coronaUpdate}
+	cmdHandler.commands["corona"] = &Command{"corona", false, CoronaUpdate}
 
 	// online
 	log.Printf("Authorized on account %s", bot.Self.UserName)

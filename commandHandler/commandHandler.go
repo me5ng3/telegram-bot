@@ -1,4 +1,4 @@
-package main
+package commandhandler
 
 import (
 	telegram "github.com/go-telegram-bot-api/telegram-bot-api"
@@ -7,7 +7,7 @@ import (
 type CommandHandler struct {
 	bot      *telegram.BotAPI
 	commands map[string]*Command
-	config   *config
+	config   *Config
 }
 
 type Command struct {
@@ -16,7 +16,7 @@ type Command struct {
 	function       func(*CommandHandler, *telegram.Update, []string)
 }
 
-func newCommandHandler(bot *telegram.BotAPI, config *config) *CommandHandler {
+func NewCommandHandler(bot *telegram.BotAPI, config *Config) *CommandHandler {
 	return &CommandHandler{bot: bot, commands: make(map[string]*Command), config: config}
 }
 

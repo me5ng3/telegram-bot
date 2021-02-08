@@ -1,4 +1,4 @@
-package main
+package commandhandler
 
 import (
 	telegram "github.com/go-telegram-bot-api/telegram-bot-api"

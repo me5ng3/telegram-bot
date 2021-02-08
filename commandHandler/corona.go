@@ -1,4 +1,4 @@
-package main
+package commandhandler
 
 import (
 	"encoding/json"
@@ -30,7 +30,7 @@ type apiResponse struct {
 	} `json:"records"`
 }
 
-func coronaUpdate(cmdHandler *CommandHandler, u *telegram.Update, args []string) {
+func CoronaUpdate(cmdHandler *CommandHandler, u *telegram.Update, args []string) {
 	res, err := cmdHandler.bot.Client.Get(url)
 	if err != nil {
 		fmt.Println(err)

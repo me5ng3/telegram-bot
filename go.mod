@@ -1,4 +1,4 @@
-module github.com/me5ng3/corona-bot
+module github.com/me5ng3/telegram-bot
 
 go 1.13
 
